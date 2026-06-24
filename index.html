@@ -64,6 +64,18 @@
   .nav-hint{position:absolute;left:14px;bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--txt-dim);
     line-height:1.7;background:rgba(8,12,17,.6);padding:7px 10px;border-radius:7px;border:1px solid var(--line-soft);backdrop-filter:blur(3px)}
   .nav-hint b{color:var(--accent)}
+  .navpad{position:absolute;right:16px;bottom:16px;display:flex;gap:14px;align-items:flex-end;
+    pointer-events:auto;background:rgba(8,12,17,.6);padding:10px 12px;border-radius:10px;
+    border:1px solid var(--line-soft);backdrop-filter:blur(3px);box-shadow:var(--shadow);user-select:none}
+  .np-grp{display:flex;flex-direction:column;align-items:center;gap:5px}
+  .np-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.4px;text-transform:uppercase;color:var(--txt-dim)}
+  .np-pad{display:grid;grid-template-columns:repeat(3,22px);grid-template-rows:repeat(3,22px);gap:3px}
+  .np-pad button{width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;
+    background:var(--panel-2);color:var(--txt-bright);border:1px solid var(--line);border-radius:5px;
+    cursor:pointer;font-size:11px;line-height:1;transition:background .1s,border-color .1s}
+  .np-pad button:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .np-pad button:active{transform:translateY(1px)}
+  .np-u{grid-area:1/2}.np-l{grid-area:2/1}.np-r{grid-area:2/3}.np-d{grid-area:3/2}
   .axis-tag{position:absolute;top:14px;right:16px;display:flex;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
   .axis-tag i{font-style:normal}.axis-tag .x{color:#ff6b6b}.axis-tag .y{color:#51cf66}.axis-tag .z{color:#4dabf7}
   .empty-hero{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
@@ -209,6 +221,26 @@
     <div class="submode hidden" id="submode"></div>
     <div class="prompt-bar hidden" id="promptBar"><div class="pb-title" id="pbTitle"></div><div class="pb-sub" id="pbSub"></div></div>
     <div class="nav-hint"><b>Right-drag</b> orbit &nbsp;·&nbsp; <b>Wheel</b> zoom &nbsp;·&nbsp; <b>Shift+Right</b> pan</div>
+    <div class="navpad" id="navpad">
+      <div class="np-grp">
+        <span class="np-lbl">Rotate</span>
+        <div class="np-pad">
+          <button class="np-u" data-act="rot-u" title="Rotate up">▲</button>
+          <button class="np-l" data-act="rot-l" title="Rotate left">◀</button>
+          <button class="np-r" data-act="rot-r" title="Rotate right">▶</button>
+          <button class="np-d" data-act="rot-d" title="Rotate down">▼</button>
+        </div>
+      </div>
+      <div class="np-grp">
+        <span class="np-lbl">Pan</span>
+        <div class="np-pad">
+          <button class="np-u" data-act="pan-u" title="Pan up">▲</button>
+          <button class="np-l" data-act="pan-l" title="Pan left">◀</button>
+          <button class="np-r" data-act="pan-r" title="Pan right">▶</button>
+          <button class="np-d" data-act="pan-d" title="Pan down">▼</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="chat" id="chatPanel">
     <div class="chat-head"><span class="cdot"></span>Build Assistant<span class="sp"></span><button id="chatClose" title="Hide">×</button></div>
@@ -1077,6 +1109,27 @@ window.addEventListener('pointerup',e=>{ if(drag){
   if(drag.mode==='orbit'&&drag.button===0&&!drag.moved) selectClick(e);
   drag=null; } });
 canvas.addEventListener('wheel',e=>{ e.preventDefault(); cam.radius=Math.max(4,Math.min(220,cam.radius*(1+Math.sign(e.deltaY)*0.09))); updateCamera(); },{passive:false});
+
+/* on-screen Rotate / Pan d-pads — press & hold for continuous motion */
+function navStep(act){
+  if(act==='rot-l'){ cam.theta-=0.03; }
+  else if(act==='rot-r'){ cam.theta+=0.03; }
+  else if(act==='rot-u'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi-0.025)); }
+  else if(act==='rot-d'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi+0.025)); }
+  else { const r=new V3().setFromMatrixColumn(camera.matrix,0),u=new V3().setFromMatrixColumn(camera.matrix,1),k=cam.radius*0.012;
+    if(act==='pan-l') cam.target.addScaledVector(r,-k);
+    else if(act==='pan-r') cam.target.addScaledVector(r,k);
+    else if(act==='pan-u') cam.target.addScaledVector(u,k);
+    else if(act==='pan-d') cam.target.addScaledVector(u,-k); }
+  updateCamera();
+}
+let navHold=null;
+function navStop(){ if(navHold){ cancelAnimationFrame(navHold); navHold=null; } }
+document.querySelectorAll('#navpad button').forEach(btn=>{
+  btn.addEventListener('pointerdown',e=>{ e.preventDefault(); const act=btn.dataset.act;
+    navStop(); const tick=()=>{ navStep(act); navHold=requestAnimationFrame(tick); }; tick(); });
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>window.addEventListener(ev,navStop));
 
 const ray=new THREE.Raycaster(),ndc=new V2();
 function setNDC(e){ const r=canvas.getBoundingClientRect(); ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); ray.setFromCamera(ndc,camera); }
