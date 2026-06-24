@@ -1132,7 +1132,7 @@ document.querySelectorAll('#navpad button').forEach(btn=>{
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>window.addEventListener(ev,navStop));
 
 /* build version — bump on each deploy to confirm the new build loaded */
-const APP_VERSION='v4';
+const APP_VERSION='v5';
 document.getElementById('verBadge').textContent=APP_VERSION;
 
 const ray=new THREE.Raycaster(),ndc=new V2();
