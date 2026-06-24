@@ -1117,10 +1117,10 @@ function navStep(act){
   else if(act==='rot-u'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi+0.025)); }
   else if(act==='rot-d'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi-0.025)); }
   else { const r=new V3().setFromMatrixColumn(camera.matrix,0),u=new V3().setFromMatrixColumn(camera.matrix,1),k=cam.radius*0.012;
-    if(act==='pan-l') cam.target.addScaledVector(r,-k);
-    else if(act==='pan-r') cam.target.addScaledVector(r,k);
-    else if(act==='pan-u') cam.target.addScaledVector(u,k);
-    else if(act==='pan-d') cam.target.addScaledVector(u,-k); }
+    if(act==='pan-l') cam.target.addScaledVector(r,k);
+    else if(act==='pan-r') cam.target.addScaledVector(r,-k);
+    else if(act==='pan-u') cam.target.addScaledVector(u,-k);
+    else if(act==='pan-d') cam.target.addScaledVector(u,k); }
   updateCamera();
 }
 let navHold=null;
@@ -1132,7 +1132,7 @@ document.querySelectorAll('#navpad button').forEach(btn=>{
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>window.addEventListener(ev,navStop));
 
 /* build version — bump on each deploy to confirm the new build loaded */
-const APP_VERSION='v5';
+const APP_VERSION='v6';
 document.getElementById('verBadge').textContent=APP_VERSION;
 
 const ray=new THREE.Raycaster(),ndc=new V2();
