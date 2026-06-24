@@ -198,7 +198,7 @@
 </head>
 <body>
 <header>
-  <div class="logo"><span class="mk"></span> FORGE <small>parametric cad</small></div>
+  <div class="logo"><span class="mk"></span> FORGE <small>parametric cad · <span id="verBadge">v?</span></small></div>
   <div class="hdr-spacer"></div>
   <button class="hbtn" id="btnFit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Fit</button>
   <button class="hbtn" id="btnGrid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>Grid</button>
@@ -1117,10 +1117,10 @@ function navStep(act){
   else if(act==='rot-u'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi+0.025)); }
   else if(act==='rot-d'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi-0.025)); }
   else { const r=new V3().setFromMatrixColumn(camera.matrix,0),u=new V3().setFromMatrixColumn(camera.matrix,1),k=cam.radius*0.012;
-    if(act==='pan-l') cam.target.addScaledVector(r,k);
-    else if(act==='pan-r') cam.target.addScaledVector(r,-k);
-    else if(act==='pan-u') cam.target.addScaledVector(u,-k);
-    else if(act==='pan-d') cam.target.addScaledVector(u,k); }
+    if(act==='pan-l') cam.target.addScaledVector(r,-k);
+    else if(act==='pan-r') cam.target.addScaledVector(r,k);
+    else if(act==='pan-u') cam.target.addScaledVector(u,k);
+    else if(act==='pan-d') cam.target.addScaledVector(u,-k); }
   updateCamera();
 }
 let navHold=null;
@@ -1130,6 +1130,10 @@ document.querySelectorAll('#navpad button').forEach(btn=>{
     navStop(); const tick=()=>{ navStep(act); navHold=requestAnimationFrame(tick); }; tick(); });
 });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>window.addEventListener(ev,navStop));
+
+/* build version — bump on each deploy to confirm the new build loaded */
+const APP_VERSION='v4';
+document.getElementById('verBadge').textContent=APP_VERSION;
 
 const ray=new THREE.Raycaster(),ndc=new V2();
 function setNDC(e){ const r=canvas.getBoundingClientRect(); ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1); ray.setFromCamera(ndc,camera); }
