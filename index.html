@@ -1112,15 +1112,15 @@ canvas.addEventListener('wheel',e=>{ e.preventDefault(); cam.radius=Math.max(4,M
 
 /* on-screen Rotate / Pan d-pads — press & hold for continuous motion */
 function navStep(act){
-  if(act==='rot-l'){ cam.theta-=0.03; }
-  else if(act==='rot-r'){ cam.theta+=0.03; }
-  else if(act==='rot-u'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi-0.025)); }
-  else if(act==='rot-d'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi+0.025)); }
+  if(act==='rot-l'){ cam.theta+=0.03; }
+  else if(act==='rot-r'){ cam.theta-=0.03; }
+  else if(act==='rot-u'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi+0.025)); }
+  else if(act==='rot-d'){ cam.phi=Math.max(0.08,Math.min(Math.PI-0.08,cam.phi-0.025)); }
   else { const r=new V3().setFromMatrixColumn(camera.matrix,0),u=new V3().setFromMatrixColumn(camera.matrix,1),k=cam.radius*0.012;
-    if(act==='pan-l') cam.target.addScaledVector(r,-k);
-    else if(act==='pan-r') cam.target.addScaledVector(r,k);
-    else if(act==='pan-u') cam.target.addScaledVector(u,k);
-    else if(act==='pan-d') cam.target.addScaledVector(u,-k); }
+    if(act==='pan-l') cam.target.addScaledVector(r,k);
+    else if(act==='pan-r') cam.target.addScaledVector(r,-k);
+    else if(act==='pan-u') cam.target.addScaledVector(u,-k);
+    else if(act==='pan-d') cam.target.addScaledVector(u,k); }
   updateCamera();
 }
 let navHold=null;
